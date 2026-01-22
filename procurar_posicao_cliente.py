@@ -19,7 +19,7 @@ xpath_botao_pesquisar = '/html/body/div[1]/div[2]/div[9]/div[3]/div[1]/div[1]/di
 
 #_________________________________________ Funções _________________________________________
 
-def pesquisar_palavra_chave(palavra_chave):
+def pesquisar_palavra_chave(navegador, palavra_chave):
     palavra_chave_formatada = palavra_chave.strip()
     palavra_chave_formatada = palavra_chave_formatada.lower()
     palavra_chave_formatada = palavra_chave_formatada.replace(' ', '+')
@@ -29,27 +29,25 @@ def pesquisar_palavra_chave(palavra_chave):
     botao = navegador.find_element(By.XPATH, xpath_botao_pesquisar)
     botao.click() # por algum motivo, o rankin da palavra muda se o botão de pesquisar for clicado (normalmente é por onde eu fazia as pesquisas manuais, entao optei por fazer isso)
 
-def carregar_todos_resultados():
+def carregar_todos_resultados(navegador):
     
     while len(navegador.find_elements(By.CSS_SELECTOR, css_container_resultados)) < 1: # -> lista for vazia -> o container de resultados não carregou ainda
         time.sleep(1.5)
 
     while len(navegador.find_elements(By.CLASS_NAME, classe_fim_da_lista)) < 1: # -> lista for vazia -> o elemento de "Você chegou ao final da lista." não carregou ainda
         navegador.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', navegador.find_element(By.CSS_SELECTOR, css_container_resultados)) # scroll no container de resultados
-        time.sleep(2)
+        time.sleep(1.5)
 
 
-def buscar_posicao_cliente(nome_empresa):
+def buscar_posicao_cliente(navegador, nome_empresa):
 
     lista_empresas = navegador.find_elements(By.CLASS_NAME, classe_nome_empresa)
     
     for i, empresa in enumerate(lista_empresas, start=1):
         if empresa.get_attribute("aria-label") == nome_empresa:
-            print(f'Encontrei a empresa na posição {i}')
-            print(f"Quantidade de empresas analisadas: {len(lista_empresas)}")
-            return i, len(lista_empresas)
+            return i, len(lista_empresas) # (empresa na posição i, Quantidade de empresas analisadas)
 
-    print("Empresa não encontrada na lista de resultados.")
+    # Empresa não encontrada na lista de resultados
     return None, len(lista_empresas)
 
 #___________________________________________________________________________________________
@@ -59,19 +57,29 @@ def buscar_posicao_cliente(nome_empresa):
 
 #_________________________________________ Script __________________________________________
 
-palavra_chave = '...'
+def buscar_todas_palavras(palavra_chave, nome_empresa):
 
-nome_empresa = '...'
+#Imformações de entrada
+#palavra_chave =  input("Digite a lista de palavras-chave separadas por vírgula: ")# 'Fisioterapeuta em Joinville'
+#nome_empresa =   input("Digite o nome da empresa que deseja buscar: 'Importante estar igual a que está escrito no Google'")#'Tainara Franz | Fisioterapeuta Especialista em Idosos - Atendimento a Domicílio'
 
-servico = Service(ChromeDriverManager().install())
-navegador = webdriver.Chrome(service=servico)
-navegador.maximize_window() # A parte de apertar o botao de buscar as vezes nao funciona se a janela estiver pequena
+#palavra_chave = palavra_chave.split(',')
 
-pesquisar_palavra_chave(palavra_chave)
+#abrincando o navegador
+    servico = Service(ChromeDriverManager().install())
+    navegador = webdriver.Chrome(service=servico)
+    navegador.maximize_window() # A parte de apertar o botao de buscar as vezes nao funciona se a janela estiver pequena
 
-carregar_todos_resultados()
+    #realizando a pesquisa de todas as palavras-chave
+    resultado = []
+    for palavra in palavra_chave:
+        pesquisar_palavra_chave(navegador, palavra)
 
-buscar_posicao_cliente(nome_empresa)
+        carregar_todos_resultados(navegador)
 
-navegador.quit()
+        posicao_cliente, total_empresas = buscar_posicao_cliente(navegador,nome_empresa)
+        resultado.append((palavra, posicao_cliente, total_empresas))
+    navegador.quit()
+
+    return resultado
 #___________________________________________________________________________________________
