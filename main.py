@@ -7,6 +7,7 @@
 
 
 import requests
+import pandas as pd
 from procurar_posicao_cliente import buscar_todas_palavras
 
 def cadastrar_comercio():
@@ -115,6 +116,7 @@ def resultados_em_excel():
     print("=============RESULTADOS EM EXCEL==============")
     
     nome_comercio = input("Qual o nome do comercio ?")
+    # verificar se o comercio existe no banco de dados
     data = input("De que data até que data deseja os resultados ? (formato dd/mm/aaaa - dd/mm/aaaa)")
 
     # Fazendo ainda...
@@ -146,5 +148,3 @@ while True:
             break
         case _:
             print("Opção inválida. Tente novamente.")
-
-    
