@@ -1,5 +1,3 @@
-CREATE SEQUENCE seq_sessao_id; -- Para contar qual a próxima sessão
-
 -- Tabela para armazenar dados do comércio
 CREATE TABLE comercios (
 	id_comercio INT GENERATED ALWAYS AS IDENTITY,
@@ -15,15 +13,22 @@ CREATE TABLE comercios (
 	PRIMARY KEY (id_comercio)
 );
 
+-- Tabela para armazenar as sessões de pesquisa
+CREATE TABLE sessoes (
+    id_sessao INT GENERATED ALWAYS AS IDENTITY,
+    id_comercio INT NOT NULL,
+    data_pesquisa DATE DEFAULT CURRENT_DATE, 
+    PRIMARY KEY (id_sessao),
+    CONSTRAINT fk_comercio FOREIGN KEY(id_comercio) REFERENCES comercios(id_comercio)
+);
+
 -- Tabela para armazenar os resultados das palavras
 CREATE TABLE rank_palavras (
 	id_ranking INT GENERATED ALWAYS AS IDENTITY,
-	id_comercio INT NOT NULL,
+	id_sessao INT NOT NULL,
 	termo_pesquisado VARCHAR NOT NULL,
 	posicao INT,
 	total_resultados INT,
-	data_pesquisa DATE NOT NULL,
-	id_sessao INT NOT NULL DEFAULT nextval('seq_sessao_id'),
 	PRIMARY KEY (id_ranking),
-	CONSTRAINT fk_comercio FOREIGN KEY(id_comercio) REFERENCES comercios(id_comercio)
+	CONSTRAINT fk_sessao FOREIGN KEY(id_sessao) REFERENCES sessoes(id_sessao)
 );

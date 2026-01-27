@@ -8,6 +8,7 @@
 
 import requests
 import pandas as pd
+import database as db
 from procurar_posicao_cliente import buscar_todas_palavras
 
 def cadastrar_comercio():
@@ -51,14 +52,13 @@ def cadastrar_comercio():
         print("Cadastro cancelado.")
         return
 
-    # salvar no banco de dados
-
-    print(f"Comercio {nome_fantasia} cadastrado com sucesso!")
+    cep = cep[0:5] + '-' + cep[5:8]
+    db.DB_inserir_comercio(nome_fantasia, responsavel, cep, pais, estado, cidade, bairro, logradouro, numero) 
 
 def ver_comercios():
     print("=============COMERCIOS CADASTRADOS==============")
 
-    lista_comercios = []  # buscar no banco de dados
+    lista_comercios = db.DB_ler_comercios()
 
     for comercio in lista_comercios:
         print(comercio)
@@ -68,8 +68,7 @@ def realizar_busca_posicao():
 
     while True:
         nome_comercio = input("Nome do comercio cadastrado: ")
-        
-        comercio_existe = None # verificar se o comercio existe no banco de dados
+        comercio_existe = db.DB_comercio_existe(nome_comercio)
         
         if comercio_existe == False:
             resposta = input("Comercio não encontrado. Deseja tentar novamente? (s/n)")
@@ -86,27 +85,29 @@ def realizar_busca_posicao():
                         Escolha uma opção: """)
         
         if resposta == '1':
-            palavra_chave =  input("Digite a lista de palavras-chave separadas por vírgula: ")
-            palavra_chave = palavra_chave.split(',')
+            palavras_chave =  input("Digite a lista de palavras-chave separadas por vírgula: ")
+            palavras_chave = palavras_chave.split(',')
             break
 
         elif resposta == '2':
-            # buscar a ultima lista de palavras-chave cadastrada no banco de dados
-            palavra_chave = []
+            
+            palavras_chave = db.DB_buscar_ultimas_palavras_chave(nome_comercio)
             break
 
         else:
             print("Opção inválida, tente novamente.")
     
-    resultado = buscar_todas_palavras(palavra_chave, nome_comercio)
+    resultado = buscar_todas_palavras(palavras_chave, nome_comercio)
 
     print("Resultados da busca:")
     print(resultado)
 
     resposta = input("deseja salvar esses resultados? (s/n): ")
     if resposta.lower() == 's':
-        # salvar resultados no banco de dados
-        print("Resultados salvos com sucesso!")
+        
+        id_comercio = db.DB_obter_id_comercio(nome_comercio)
+
+        db.DB_inserir_resultados_busca(id_comercio, resultado)
     else:
         print("Resultados não foram salvos.")
         
@@ -115,8 +116,17 @@ def realizar_busca_posicao():
 def resultados_em_excel():
     print("=============RESULTADOS EM EXCEL==============")
     
-    nome_comercio = input("Qual o nome do comercio ?")
-    # verificar se o comercio existe no banco de dados
+    while True:
+        nome_comercio = input("Nome do comercio cadastrado: ")
+        comercio_existe = db.DB_comercio_existe(nome_comercio)
+        
+        if comercio_existe == False:
+            resposta = input("Comercio não encontrado. Deseja tentar novamente? (s/n)")
+            if resposta.lower() == 'n':
+                return
+        else:
+            break
+        
     data = input("De que data até que data deseja os resultados ? (formato dd/mm/aaaa - dd/mm/aaaa)")
 
     # Fazendo ainda...
