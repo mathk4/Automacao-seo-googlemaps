@@ -2,6 +2,7 @@ import psycopg2
 from psycopg2 import Error
 import os
 from dotenv import load_dotenv
+import pandas as pd
 
 load_dotenv()
 
@@ -141,3 +142,28 @@ def DB_inserir_resultados_busca(id_comercio, resultados):
 
     print("Resultados salvos com sucesso!")
     fechar_conexao(conn)
+
+def procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim):
+    
+    conn = conectar_banco()
+
+    comando_sql = """
+    SELECT
+        rank_palavras.termo_pesquisado,
+        rank_palavras.posicao,
+        rank_palavras.total_resultados,
+        sessoes.data_pesquisa
+    FROM comercios
+    INNER JOIN sessoes
+    ON comercios.id_comercio = sessoes.id_comercio
+    INNER JOIN rank_palavras
+    ON sessoes.id_sessao = rank_palavras.id_sessao
+    WHERE comercios.nome_fantasia = %s
+    AND sessoes.data_pesquisa BETWEEN %s AND %s;
+    """
+
+    df = pd.read_sql(comando_sql, conn, params=(nome_comercio, data_inicio, data_fim))
+    
+    fechar_conexao(conn)
+
+    return df

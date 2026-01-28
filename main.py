@@ -1,11 +1,3 @@
-#tarefas:
-# principais:
-# - fazer funções relacionadas ao banco de dados
-
-# secundarias:
-# - verificar se a mepresa existe no google maps antes de cadastrar
-
-
 import requests
 import pandas as pd
 import database as db
@@ -127,11 +119,42 @@ def resultados_em_excel():
         else:
             break
         
-    data = input("De que data até que data deseja os resultados ? (formato dd/mm/aaaa - dd/mm/aaaa)")
+    while True:
+        print("De que data até que data deseja os resultados ?")
+        dia_inicio = input("Dia inicio (DD): ")
+        mes_inicio = input("Mes inicio (MM): ")
+        ano_inicio = input("Ano inicio (AAAA): ")
+        dia_fim = input("Dia fim (DD): ")
+        mes_fim = input("Mes fim (MM): ")
+        ano_fim = input("Ano fim (AAAA): ")
 
-    # Fazendo ainda...
+        data_inicio = f"{ano_inicio}-{mes_inicio}-{dia_inicio}"
+        data_fim = f"{ano_fim}-{mes_fim}-{dia_fim}"
+
+        print(f"Você escolheu o período de {data_inicio} até {data_fim}. Está correto ?")
+        resposta = input("Digite 's' para sim ou 'n' para não: ")
+        if resposta.lower() == 's':
+            break
+    
+    df = db.procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim)
+
+    if df.empty:
+        print("Nenhum dado encontrado para esse período.")
+        return
+
+    tabela_excel = df.pivot_table(index='termo_pesquisado', columns='data_pesquisa', values=['posicao', 'total_resultados'], aggfunc='max')
+    tabela_excel = tabela_excel.swaplevel(0,1, axis=1).sort_index(axis=1)
+
+    tabela_excel.columns.names = [None, None] # Remove "data_pesquisa" do topo
+    tabela_excel.index.name = None            # Remove "termo_pesquisado" de cima da coluna A
+
+    tabela_excel.to_excel(f'resultados_{nome_comercio}_{data_inicio}_a_{data_fim}.xlsx')
 
     print("Excel gerado com sucesso!")
+
+
+
+
 
 while True:
     print("=============MENU==============")
@@ -151,8 +174,7 @@ while True:
         case "3":
             realizar_busca_posicao()
         case "4":
-           # TODO: gerar resultados em excel com filtros
-            pass
+            resultados_em_excel()
         case "5":
             print("Saindo...")
             break
