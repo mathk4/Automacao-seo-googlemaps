@@ -31,20 +31,39 @@ def cadastrar_comercio():
     logradouro = resposta_dict['logradouro']
     
     while True:
-        numero = input("Número do comercio: ")
-        if numero.isdigit():
-            break
-        else:
+        
+        try:
+            numero = int(input("Número do comercio: "))
+        except ValueError:
             print("Número inválido. Tente novamente.")
-
-    print("Tem certeza que deseja cadastrar?")
-    resposta = input("Digite 's' para sim ou 'n' para não: ")
-    
-    if resposta.lower() == 'n':
-        print("Cadastro cancelado.")
-        return
+            continue
+        break
 
     cep = cep[0:5] + '-' + cep[5:8]
+    
+    print("Tem certeza que deseja cadastrar?")
+    print(f"""
+        Nome Fantasia: {nome_fantasia}
+          Responsavel: {responsavel}
+                  CEP: {cep}
+                 País: {pais}
+               Estado: {estado}
+               Cidade: {cidade}
+               Bairro: {bairro}
+           Logradouro: {logradouro}
+               Número: {numero}
+        """)
+    while True:
+        resposta = input("Digite 's' para sim ou 'n' para não: ")
+        
+        if resposta.lower() == 'n':
+            print("Cadastro cancelado.")
+            return
+        if resposta.lower() != 's':
+            print("Resposta inválida. Tente novamente.")
+            continue
+        break
+
     db.DB_inserir_comercio(nome_fantasia, responsavel, cep, pais, estado, cidade, bairro, logradouro, numero) 
 
 def ver_comercios():
@@ -84,12 +103,17 @@ def realizar_busca_posicao():
         elif resposta == '2':
             
             palavras_chave = db.DB_buscar_ultimas_palavras_chave(nome_comercio)
+            if not palavras_chave:
+                return
+
             break
 
         else:
             print("Opção inválida, tente novamente.")
     
     resultado = buscar_todas_palavras(palavras_chave, nome_comercio)
+    if not resultado:
+        return
 
     print("Resultados da busca:")
     print(resultado)
@@ -98,6 +122,9 @@ def realizar_busca_posicao():
     if resposta.lower() == 's':
         
         id_comercio = db.DB_obter_id_comercio(nome_comercio)
+        if id_comercio is None:
+            print("Erro ao obter ID do comercio. Resultados não foram salvos.")
+            return
 
         db.DB_inserir_resultados_busca(id_comercio, resultado)
     else:
@@ -120,13 +147,17 @@ def resultados_em_excel():
             break
         
     while True:
-        print("De que data até que data deseja os resultados ?")
-        dia_inicio = input("Dia inicio (DD): ")
-        mes_inicio = input("Mes inicio (MM): ")
-        ano_inicio = input("Ano inicio (AAAA): ")
-        dia_fim = input("Dia fim (DD): ")
-        mes_fim = input("Mes fim (MM): ")
-        ano_fim = input("Ano fim (AAAA): ")
+        try:
+            print("De que data até que data deseja os resultados ?")
+            dia_inicio = int(input("Dia inicio (DD): "))
+            mes_inicio = int(input("Mes inicio (MM): "))
+            ano_inicio = int(input("Ano inicio (AAAA): "))
+            dia_fim = int(input("Dia fim (DD): "))
+            mes_fim = int(input("Mes fim (MM): "))
+            ano_fim = int(input("Ano fim (AAAA): "))
+        except ValueError:
+            print("Data invalida, escreva numeros inteiros.")
+            continue
 
         data_inicio = f"{ano_inicio}-{mes_inicio}-{dia_inicio}"
         data_fim = f"{ano_fim}-{mes_fim}-{dia_fim}"
