@@ -18,7 +18,8 @@ def cadastrar_comercio():
         if resposta.status_code == 200:
             resposta_dict = resposta.json()
 
-            if resposta_dict.get("erro") is None:
+            # caso o cep tenha 8 números, mas esteja errado, a API renorta erro igual a true
+            if resposta_dict.get("erro") is None: 
                 break
             else:
                 print("CEP inválido. Tente novamente.")
@@ -174,6 +175,8 @@ def resultados_em_excel():
         print("Nenhum dado encontrado para esse período.")
         return
 
+    # Datas viram colunas e os termos viram linhas
+    # swaplevel organiza os cabeçalhos para que a data fique acima de 'posicao' e 'total'
     tabela_excel = df.pivot_table(index='termo_pesquisado', columns='data_pesquisa', values=['posicao', 'total_resultados'], aggfunc='max')
     tabela_excel = tabela_excel.swaplevel(0,1, axis=1).sort_index(axis=1)
 

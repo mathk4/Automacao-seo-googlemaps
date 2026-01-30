@@ -62,10 +62,10 @@ def buscar_posicao_cliente(navegador, nome_empresa):
 def buscar_todas_palavras(palavra_chave, nome_empresa):
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--headless=new") # Deixar a janela invisivel 
     chrome_options.add_argument("--window-size=1920,1080") # A parte de apertar o botao de buscar as vezes nao funciona se a janela estiver pequena
-    chrome_options.add_argument("--log-level=3")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    chrome_options.add_argument("--log-level=3") # Silencia logs que não sejam erros críticos
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"]) # Limpa avisos desnecessários do console
 
     #abrindo o navegador
     servico = Service(ChromeDriverManager().install())
