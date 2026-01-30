@@ -168,7 +168,7 @@ def resultados_em_excel():
         if resposta.lower() == 's':
             break
     
-    df = db.procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim)
+    df = db.DB_procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim)
 
     if df.empty:
         print("Nenhum dado encontrado para esse período.")

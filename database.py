@@ -190,7 +190,7 @@ def DB_inserir_resultados_busca(id_comercio, resultados):
     finally:
         fechar_conexao(conn)
 
-def procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim):
+def DB_procurar_rank_empresa_por_data(nome_comercio, data_inicio, data_fim):
     
     conn = conectar_banco()
     if not conn:
