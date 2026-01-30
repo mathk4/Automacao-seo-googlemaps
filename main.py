@@ -113,6 +113,7 @@ def realizar_busca_posicao():
     
     resultado = buscar_todas_palavras(palavras_chave, nome_comercio)
     if not resultado:
+        print("Nenhum resultado obtido.")
         return
 
     print("Resultados da busca:")

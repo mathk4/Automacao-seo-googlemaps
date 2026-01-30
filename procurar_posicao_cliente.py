@@ -2,8 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-import time
 from selenium.webdriver.chrome.options import Options
+import time
+from tqdm import tqdm
+import random
 
 #___________________ Caso o valor de algum elemento mude, altere por aqui __________________
 
@@ -36,7 +38,7 @@ def carregar_todos_resultados(navegador):
 
     while len(navegador.find_elements(By.CLASS_NAME, classe_fim_da_lista)) < 1: # -> lista for vazia -> o elemento de "Você chegou ao final da lista." não carregou ainda
         navegador.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', navegador.find_element(By.CSS_SELECTOR, css_container_resultados)) # scroll no container de resultados
-        time.sleep(1.5)
+        time.sleep(random.uniform(1.5, 3))
 
 
 def buscar_posicao_cliente(navegador, nome_empresa):
@@ -59,27 +61,30 @@ def buscar_posicao_cliente(navegador, nome_empresa):
 
 def buscar_todas_palavras(palavra_chave, nome_empresa):
 
-#Imformações de entrada
-#palavra_chave =  input("Digite a lista de palavras-chave separadas por vírgula: ")# 'Fisioterapeuta em Joinville'
-#nome_empresa =   input("Digite o nome da empresa que deseja buscar: 'Importante estar igual a que está escrito no Google'")#'Tainara Franz | Fisioterapeuta Especialista em Idosos - Atendimento a Domicílio'
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--window-size=1920,1080") # A parte de apertar o botao de buscar as vezes nao funciona se a janela estiver pequena
+    chrome_options.add_argument("--log-level=3")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-#palavra_chave = palavra_chave.split(',')
-
-#abrincando o navegador
+    #abrindo o navegador
     servico = Service(ChromeDriverManager().install())
-    navegador = webdriver.Chrome(service=servico)
-    navegador.maximize_window() # A parte de apertar o botao de buscar as vezes nao funciona se a janela estiver pequena
+    navegador = webdriver.Chrome(service=servico, options=chrome_options)
 
     #realizando a pesquisa de todas as palavras-chave
     resultado = []
-    for palavra in palavra_chave:
-        pesquisar_palavra_chave(navegador, palavra)
+    try: 
+        for palavra in tqdm(palavra_chave, desc="Pesquisando palavras-chave"):
+            pesquisar_palavra_chave(navegador, palavra)
 
-        carregar_todos_resultados(navegador)
+            carregar_todos_resultados(navegador)
 
-        posicao_cliente, total_empresas = buscar_posicao_cliente(navegador,nome_empresa)
-        resultado.append((palavra, posicao_cliente, total_empresas))
-    navegador.quit()
-
+            posicao_cliente, total_empresas = buscar_posicao_cliente(navegador,nome_empresa)
+            resultado.append((palavra, posicao_cliente, total_empresas))
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
+    finally:
+        navegador.quit()
+    
     return resultado
 #___________________________________________________________________________________________
