@@ -55,8 +55,6 @@ cd Automacao-seo-googlemaps
 pip install -r requirements.txt
 ```
 
----
-
 ### 3. Configuração do Banco de Dados
 
 * Crie um banco de dados no PostgreSQL
