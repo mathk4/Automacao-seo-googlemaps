@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import database as db
 from procurar_posicao_cliente import buscar_todas_palavras
+import re
 
 def cadastrar_comercio():
     print("=============CADASTRAR COMERCIO==============")
@@ -183,7 +184,8 @@ def resultados_em_excel():
     tabela_excel.columns.names = [None, None] # Remove "data_pesquisa" do topo
     tabela_excel.index.name = None            # Remove "termo_pesquisado" de cima da coluna A
 
-    tabela_excel.to_excel(f'resultados_{nome_comercio}_{data_inicio}_a_{data_fim}.xlsx')
+    nome_limpo = re.sub(r'[\\/*?:"<>|]', "", nome_comercio)
+    tabela_excel.to_excel(f'resultados_{nome_limpo}_{data_inicio}_a_{data_fim}.xlsx')
 
     print("Excel gerado com sucesso!")
 
