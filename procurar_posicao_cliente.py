@@ -36,9 +36,26 @@ def carregar_todos_resultados(navegador):
     while len(navegador.find_elements(By.CSS_SELECTOR, css_container_resultados)) < 1: # -> lista for vazia -> o container de resultados não carregou ainda
         time.sleep(1.5)
 
-    while len(navegador.find_elements(By.CLASS_NAME, classe_fim_da_lista)) < 1: # -> lista for vazia -> o elemento de "Você chegou ao final da lista." não carregou ainda
-        navegador.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', navegador.find_element(By.CSS_SELECTOR, css_container_resultados)) # scroll no container de resultados
-        time.sleep(random.uniform(1.5, 3))
+    container_resultado =  navegador.find_element(By.CSS_SELECTOR, css_container_resultados)
+    antiga_quantidade_elementos_no_container = 0
+    tentativas = 0
+
+    while True:
+        
+        navegador.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', container_resultado) # scroll no container de resultados
+        time.sleep(random.uniform(2, 3.5))
+
+        Quantidade_elementos_no_conteiner = len(container_resultado.find_elements(By.CLASS_NAME, classe_nome_empresa))
+
+        if Quantidade_elementos_no_conteiner == antiga_quantidade_elementos_no_container:
+            if tentativas >= 3 and len(navegador.find_elements(By.CLASS_NAME, classe_fim_da_lista)) > 0:
+                    tentativas = 0
+                    break
+            tentativas = tentativas + 1  
+        if tentativas == 10:
+            break
+        
+        antiga_quantidade_elementos_no_container = Quantidade_elementos_no_conteiner
 
 
 def buscar_posicao_cliente(navegador, nome_empresa):
@@ -80,7 +97,7 @@ def buscar_todas_palavras(palavra_chave, nome_empresa):
             carregar_todos_resultados(navegador)
 
             posicao_cliente, total_empresas = buscar_posicao_cliente(navegador,nome_empresa)
-            resultado.append((palavra, posicao_cliente, total_empresas))
+            resultado.append((palavra.strip(), posicao_cliente, total_empresas))
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
     finally:
