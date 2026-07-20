@@ -163,9 +163,11 @@ def resultados_em_excel():
             continue
 
         data_inicio = f"{ano_inicio}-{mes_inicio}-{dia_inicio}"
+        data_inicioBR = f"{dia_inicio}/{mes_inicio}/{ano_inicio}"
         data_fim = f"{ano_fim}-{mes_fim}-{dia_fim}"
+        data_fimBR = f"{dia_fim}/{mes_fim}/{ano_fim}"
 
-        print(f"Você escolheu o período de {data_inicio} até {data_fim}. Está correto ?")
+        print(f"Você escolheu o período de {data_inicioBR} até {data_fimBR}. Está correto ?")
         resposta = input("Digite 's' para sim ou 'n' para não: ")
         if resposta.lower() == 's':
             break
@@ -185,7 +187,7 @@ def resultados_em_excel():
     tabela_excel.index.name = None            # Remove "termo_pesquisado" de cima da coluna A
 
     nome_limpo = re.sub(r'[\\/*?:"<>|]', "", nome_comercio)
-    tabela_excel.to_excel(f'resultados_{nome_limpo}_{data_inicio}_a_{data_fim}.xlsx')
+    tabela_excel.to_excel(f'resultados_{nome_limpo}_{data_inicioBR}_a_{data_fimBR}.xlsx')
 
     print("Excel gerado com sucesso!")
 
