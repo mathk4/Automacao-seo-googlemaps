@@ -3,6 +3,38 @@ import pandas as pd
 import database as db
 from procurar_posicao_cliente import buscar_todas_palavras
 import re
+from procurar_potenciais_clientes import busca_potenciais_clientes
+
+def potenciais_clientes():
+    print("=============POTENCIAIS CLIENTES==============")
+    termos_pesquisa = input("Digite palavras chaves que possam ser usadas para encontrar potenciais clientes (separadas por vírgula) (cada termo gera um conjunto de resultados com quantidade especificada nos proximos passos): Ex: Fisioterapia, Pilates Clínico, etc:  ")
+    termos_pesquisa = [termo.strip() for termo in termos_pesquisa.split(",")]
+
+    cidades = input("Digite as cidades que deseja buscar potenciais clientes (separadas por vírgula): Ex: São Paulo, Rio de Janeiro, etc:  ")
+    cidades = [cidade.strip() for cidade in cidades.split(",")]
+    
+    while True:
+        qnt_cliente_por_cidade = input("digite a quantidade de clientes que deseja buscar por cidade separe por virgula na ordem das cidaddes escritas anteriormente: Ex: 10, 20, etc:  ")
+        qnt_cliente_por_cidade = [int(qtd.strip()) for qtd in qnt_cliente_por_cidade.split(",")]
+        if len(qnt_cliente_por_cidade) == len(cidades):
+            break
+        else:
+            resposta = input("Número de quantidades não corresponde ao número de cidades. Deseja tentar novamente ou desistir? (1 para tentar novamente | 2 para desistir)")
+            if resposta == '2':
+                return
+
+    pais = input("Digite o país que deseja buscar potenciais clientes: Ex: BR, USA, etc:  ")
+    pais = pais.strip()
+
+    print("Iniciando busca, aguarde...")
+
+    resultado = busca_potenciais_clientes(termos_pesquisa, cidades, pais, qnt_cliente_por_cidade)
+
+    if resultado.empty:
+        print("Nenhum potencial cliente encontrado.")
+        return
+    else:
+        resultado.to_excel("potenciais_clientes.xlsx", index=False)
 
 def cadastrar_comercio():
     print("=============CADASTRAR COMERCIO==============")
@@ -201,7 +233,8 @@ while True:
     print("2. Ver comercios cadastrados")
     print("3. Resalizar busca de posiçao")
     print("4. Resultados em excel")
-    print("5. Sair")
+    print("5. Buscar potenciais clientes")
+    print("6. Sair")
 
     opcao = input("Escolha uma opçao: ")
 
@@ -215,6 +248,8 @@ while True:
         case "4":
             resultados_em_excel()
         case "5":
+            potenciais_clientes()
+        case "6":
             print("Saindo...")
             break
         case _:

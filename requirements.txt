@@ -6,3 +6,4 @@ selenium==4.33.0
 tqdm==4.67.1
 webdriver_manager==4.0.2
 openpyxl==3.1.5
+apify_client==3.1.0
