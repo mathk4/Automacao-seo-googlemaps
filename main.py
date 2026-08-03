@@ -218,6 +218,8 @@ def resultados_em_excel():
     tabela_excel.columns.names = [None, None] # Remove "data_pesquisa" do topo
     tabela_excel.index.name = None            # Remove "termo_pesquisado" de cima da coluna A
 
+    data_inicioBR = data_inicioBR.replace("/", "-")
+    data_fimBR = data_fimBR.replace("/", "-")
     nome_limpo = re.sub(r'[\\/*?:"<>|]', "", nome_comercio)
     tabela_excel.to_excel(f'resultados_{nome_limpo}_{data_inicioBR}_a_{data_fimBR}.xlsx')
 
